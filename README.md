@@ -141,5 +141,26 @@ Below is the execution sequence required to build, deploy, and launch this swarm
                       ► Why: The cluster pulls work on-demand. Fast units 
                              process more data, slow units process less.
 
+---
+
+## 📖 Quickstart & Documentation
+
+For detailed step-by-step instructions on setting up DHT bootnodes, configuring S3/R2 storage, sharding datasets, running workers, monitoring with TensorBoard, and deploying via Docker/systemd:
+
+👉 **[Read the Full Usage Guide (USAGE.md)](USAGE.md)**
+
+### Local 3-Step Test Run
+```bash
+# 1. Start DHT Bootnode
+python -m p2p_ml_swarm.bootnode --port 38000
+
+# 2. Partition dataset into binary shards
+python examples/mnist/prepare_data.py --output-dir ./mnist_shards --shard-size-mb 10
+
+# 3. Launch a worker node
+python examples/mnist/train.py --config config/swarm_config.yaml --device cpu
+```
+
+
 
 

@@ -48,9 +48,11 @@ Thumbs.db
 !config/*.yaml
 !config/*.json
 
-# Ignore all markdown files except README.md
+# Ignore all markdown files except README.md and USAGE.md
 *.md
 !README.md
+!USAGE.md
+
 
 # Graphify knowledge graph artifacts
 graphify-out/

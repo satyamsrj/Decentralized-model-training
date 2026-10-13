@@ -1,0 +1,19 @@
+bootnode_addr: "/ip4/YOUR_VPS_IP/tcp/PORT/p2p/PEER_ID"
+run_id: "swarm_run_001"
+bucket_url: "https://ACCOUNT_ID.r2.cloudflarestorage.com"
+bucket_name: "ml-training-data"
+
+batch_size_per_step: 32
+target_batch_size: 256
+shard_size_mb: 50
+
+matchmaking_time: 15.0
+averaging_timeout: 60.0
+token_timeout_sec: 300.0
+
+learning_rate: 0.0001
+offload_optimizer: false
+auxiliary: false
+client_mode: true
+
+s3_region: "auto"

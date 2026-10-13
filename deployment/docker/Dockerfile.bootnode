@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+LABEL maintainer="p2p-ml-swarm"
+LABEL description="P2P ML Swarm DHT Bootnode"
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir hivemind>=1.1.10
+
+COPY p2p_ml_swarm/bootnode.py ./bootnode.py
+
+EXPOSE 38000
+
+ENTRYPOINT ["python", "bootnode.py"]
+CMD ["--host", "0.0.0.0", "--port", "38000"]

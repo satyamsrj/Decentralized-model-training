@@ -51,3 +51,8 @@ Thumbs.db
 # Ignore all markdown files except README.md
 *.md
 !README.md
+
+# Graphify knowledge graph artifacts
+graphify-out/
+.graphify*
+

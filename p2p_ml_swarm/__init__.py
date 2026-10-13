@@ -5,10 +5,34 @@ __version__ = "0.1.0"
 from p2p_ml_swarm.config import SwarmConfig
 from p2p_ml_swarm.exceptions import SwarmError
 
+
 def __getattr__(name: str):
-    if name == "DHTManager":
-        from p2p_ml_swarm.dht_manager import DHTManager
-        return DHTManager
+    _lazy_imports = {
+        "DHTManager": "p2p_ml_swarm.dht_manager",
+        "StorageClient": "p2p_ml_swarm.storage",
+        "DataPipeline": "p2p_ml_swarm.data_pipeline",
+        "SwarmTrainer": "p2p_ml_swarm.trainer",
+        "SwarmWorker": "p2p_ml_swarm.worker",
+        "CheckpointManager": "p2p_ml_swarm.checkpoint",
+        "SwarmMonitor": "p2p_ml_swarm.monitoring",
+    }
+    if name in _lazy_imports:
+        import importlib
+
+        module = importlib.import_module(_lazy_imports[name])
+        return getattr(module, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
-__all__ = ["SwarmConfig", "DHTManager", "SwarmError", "__version__"]
+
+__all__ = [
+    "SwarmConfig",
+    "SwarmError",
+    "DHTManager",
+    "StorageClient",
+    "DataPipeline",
+    "SwarmTrainer",
+    "SwarmWorker",
+    "CheckpointManager",
+    "SwarmMonitor",
+    "__version__",
+]

@@ -46,6 +46,7 @@ include = ["p2p_ml_swarm*"]
 
 [project.scripts]
 p2p-ml-bootnode = "p2p_ml_swarm.bootnode:main"
+p2p-ml-worker = "p2p_ml_swarm.worker:main"
 
 [tool.ruff]
 line-length = 88

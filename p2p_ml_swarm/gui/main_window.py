@@ -20,9 +20,9 @@ from typing import Any, Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 try:
-    from PySide6.QtCore import QSize, Qt, QTimer, Signal
-    from PySide6.QtGui import QColor, QFont, QIcon, QPalette
-    from PySide6.QtWidgets import (
+    from PySide6.QtCore import QSize, Qt, QTimer, Signal  # type: ignore
+    from PySide6.QtGui import QColor, QFont, QIcon, QPalette  # type: ignore
+    from PySide6.QtWidgets import (  # type: ignore
         QApplication,
         QComboBox,
         QDialog,

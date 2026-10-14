@@ -208,19 +208,27 @@ class ClusterApp(tk.Tk):
             self._dev_tree.delete(item)
 
         interfaces = probe_network_interfaces()
-        usb_interfaces = find_usb_network_interfaces()
-        usb_names = {u.interface_name for u in usb_interfaces}
-
         for iface in interfaces:
-            itype = "🔌 USB-to-Ethernet" if iface.interface_name in usb_names else ("🌐 Virtual / VPN" if "tailscale" in iface.interface_name.lower() or "wireguard" in iface.interface_name.lower() else "Standard Ethernet/Wi-Fi")
+            if iface.is_usb:
+                itype = "USB-to-Ethernet"
+            elif iface.is_overlay:
+                itype = "Virtual / VPN"
+            elif iface.is_loopback:
+                itype = "Loopback"
+            else:
+                itype = "Ethernet / Wi-Fi"
+
             status = "UP" if iface.is_up else "DOWN"
+            ip = iface.primary_ipv4 or (iface.addresses[0].ip if iface.addresses else "None")
+            netmask = iface.addresses[0].netmask if iface.addresses and iface.addresses[0].netmask else "--"
+
             self._dev_tree.insert(
                 "",
                 "end",
                 values=(
-                    iface.interface_name,
-                    iface.ipv4_address or "—",
-                    iface.netmask or "—",
+                    iface.name,
+                    ip,
+                    netmask,
                     status,
                     itype,
                 ),

@@ -591,12 +591,40 @@ if PYSIDE_AVAILABLE:
                 rtt_str = f"{w.telemetry.round_trip_latency_ms:.1f} ms"
                 self._worker_table.setItem(row, 6, QTableWidgetItem(rtt_str))
 
+else:
 
-def run_gui() -> None:
-    """Launch the Local ML Cluster PySide6 desktop application."""
+    class LocalMLClusterGUI:
+        """Headless fallback simulation window when PySide6 is not installed."""
+
+        def __init__(
+            self,
+            registry: Optional[WorkerRegistry] = None,
+            run_manager: Optional[RunManager] = None,
+            parent: Optional[Any] = None,
+        ) -> None:
+            self._registry = registry or WorkerRegistry()
+            self._run_manager = run_manager or RunManager(registry=self._registry)
+            logger.info("LocalMLClusterGUI initialized in headless simulation mode")
+
+        def show(self) -> None:
+            logger.info("LocalMLClusterGUI.show() called in headless simulation mode")
+
+
+# Canonical exported aliases
+MainWindow = LocalMLClusterGUI
+
+
+def launch_gui() -> None:
+    """Launch the Local ML Cluster desktop application or print dependency guide."""
     if not PYSIDE_AVAILABLE:
-        print("Error: PySide6 is not installed. Run 'pip install PySide6' to enable the GUI.")
-        sys.exit(1)
+        print("\n" + "=" * 60)
+        print("  Local ML Cluster — PySide6 Desktop GUI")
+        print("=" * 60)
+        print("PySide6 is not installed in the active Python environment.")
+        print("To launch the graphical desktop interface, install PySide6:")
+        print("    pip install PySide6")
+        print("=" * 60 + "\n")
+        return
 
     app = QApplication(sys.argv)
     window = LocalMLClusterGUI()
@@ -604,5 +632,9 @@ def run_gui() -> None:
     sys.exit(app.exec())
 
 
+run_gui = launch_gui
+
+
 if __name__ == "__main__":
-    run_gui()
+    launch_gui()
+

@@ -423,3 +423,44 @@ graphify path "SwarmWorker" "SwarmTrainer"
 # Open interactive visualization
 open graphify-out/graph.html  # On Windows: start graphify-out/graph.html
 ```
+
+---
+
+## 11. Local ML Cluster GUI (Desktop Application)
+
+The **Local ML Cluster** desktop application provides an intuitive graphical interface to coordinate distributed model training across multiple laptops without needing complex terminal configurations.
+
+### Launching the Desktop GUI
+
+Run from your terminal:
+```bash
+python -m p2p_ml_swarm.gui
+```
+Or launch programmatically in Python:
+```python
+from p2p_ml_swarm.gui import launch_gui
+
+launch_gui()
+```
+
+### Connection Modes
+
+1. **Online / VM Mode**:
+   - Laptops connect over a secure virtual private overlay network (Tailscale or WireGuard).
+   - An authoritative cloud control plane (`python -m p2p_ml_swarm.online_server.api`) coordinates enrollment, health checks, and run generations.
+   - Tensor gradients flow directly peer-to-peer between workers via PyTorch DDP TCP rendezvous.
+2. **Offline / USB Mode**:
+   - Laptops are connected directly using USB-to-Ethernet or USB-C bridge cables on a shared link-local subnet (e.g. `169.254.0.0/16` or `192.168.2.0/24`).
+   - Zero Internet connection, cloud storage, or external VM is required.
+   - Pre-installed model templates and synthetic offline datasets ensure immediate training readiness anywhere.
+
+### 7-Step GUI Workflow
+
+1. **Home Screen**: Displays local node status, OS, CPU cores, RAM, and detected CUDA GPU.
+2. **Connection Mode**: Choose between **Online (VM)** or **Offline (USB)**.
+3. **Worker Pairing**: Generate a 6-character cryptographic pairing code (e.g., `K9X2P4`) on the controlling laptop. Peer laptops enter this code to securely enroll and receive their rank assignment (Rank 0 = Coordinator).
+4. **Model & Dataset**: Select curated templates (`mnist_cnn`, `fashion_mnist_cnn`, `cifar10_convnet`, `tabular_mlp`), configure batch size, learning rate, and epochs.
+5. **Preflight Safety Gate**: Automated verification tests network latency, worker counts, minimum 2GB free disk space, and CUDA/CPU device compatibility before launching.
+6. **Live Training Dashboard**: Real-time progress bars, epoch tracking, rolling loss metrics, sample throughput, and live node logs.
+7. **Results & Artifact Export**: View training duration, final loss, and export SHA-256 verified model checkpoint manifests.
+

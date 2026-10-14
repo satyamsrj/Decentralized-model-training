@@ -88,25 +88,31 @@ class DDPBackend(TrainingBackend):
             self._device,
         )
 
-        try:
-            if not dist.is_initialized():
-                dist.init_process_group(
-                    backend=self._backend_str,
-                    init_method=rendezvous_endpoint,
-                    world_size=world_size,
-                    rank=rank,
-                )
-            self._is_initialized = True
-        except Exception as e:
-            msg = f"Failed to initialize DDP process group at '{rendezvous_endpoint}': {e}"
-            logger.error(msg)
-            raise TrainingError(msg) from e
+        if world_size > 1:
+            try:
+                if not dist.is_initialized():
+                    dist.init_process_group(
+                        backend=self._backend_str,
+                        init_method=rendezvous_endpoint,
+                        world_size=world_size,
+                        rank=rank,
+                    )
+                self._is_initialized = True
+            except Exception as e:
+                msg = f"Failed to initialize DDP process group at '{rendezvous_endpoint}': {e}"
+                logger.error(msg)
+                raise TrainingError(msg) from e
 
-        # Wrap model in DistributedDataParallel
-        if self._device.type == "cuda":
-            self._ddp_model = DDP(self._raw_model, device_ids=[self._device.index or 0])
+            # Wrap model in DistributedDataParallel
+            if self._device.type == "cuda":
+                self._ddp_model = DDP(self._raw_model, device_ids=[self._device.index or 0])
+            else:
+                self._ddp_model = DDP(self._raw_model)
         else:
-            self._ddp_model = DDP(self._raw_model)
+            # Single-worker local execution (no inter-process group needed)
+            self._is_initialized = True
+            self._ddp_model = self._raw_model
+            logger.info("Single-worker mode (world_size=1): running model directly on %s", self._device)
 
         # Configure optimizer
         lr = config.get("learning_rate", 0.001)

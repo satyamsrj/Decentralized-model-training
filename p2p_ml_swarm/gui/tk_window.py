@@ -17,9 +17,10 @@ from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# pyrefly: ignore [missing-import]
 import torch
 
-from p2p_ml_swarm.agent.hardware_probe import collect_hardware_telemetry
+from p2p_ml_swarm.agent.hardware_probe import probe_hardware
 from p2p_ml_swarm.control.run_manager import RunManager
 from p2p_ml_swarm.control.run_state import ConnectionMode, RunState, WorkerIdentity, WorkerTelemetry
 from p2p_ml_swarm.control.worker_registry import WorkerRegistry
@@ -92,14 +93,15 @@ class ClusterApp(tk.Tk):
         style.map("Treeview", background=[("selected", "#45475a")], foreground=[("selected", "#f5e0dc")])
 
     def _init_local_coordinator(self) -> None:
-        telemetry = collect_hardware_telemetry()
+        report = probe_hardware()
+        gpu_name = report.gpus[0].name if report.gpus else None
         coord_id = "coordinator-local-0"
         self._coord_identity = WorkerIdentity(
             worker_id=coord_id,
-            hostname=telemetry.hostname,
+            hostname=report.hostname,
             ip_address="127.0.0.1",
             connection_mode=ConnectionMode.OFFLINE_USB,
-            os_name=f"{telemetry.os_name} {telemetry.os_release}",
+            os_name=f"{report.os_name} {report.os_release}",
             python_version=sys.version.split()[0],
             pytorch_version=torch.__version__,
         )
@@ -107,11 +109,11 @@ class ClusterApp(tk.Tk):
         self._registry.record_heartbeat(
             coord_id,
             telemetry=WorkerTelemetry(
-                cpu_percent=telemetry.cpu_percent,
-                ram_used_gb=telemetry.ram_used_gb,
-                ram_total_gb=telemetry.ram_total_gb,
-                disk_free_gb=telemetry.disk_free_gb,
-                gpu_name=telemetry.gpu_name,
+                cpu_percent=report.cpu_percent,
+                ram_used_gb=report.ram_used_gb,
+                ram_total_gb=report.ram_total_gb,
+                disk_free_gb=report.disk_free_gb,
+                gpu_name=gpu_name,
             ),
         )
 
@@ -184,14 +186,14 @@ class ClusterApp(tk.Tk):
         card_title = tk.Label(card, text="💻 Local Node Compute Resources", font=("Segoe UI", 11, "bold"), bg="#181825", fg="#89b4fa")
         card_title.pack(anchor="w", pady=(0, 8))
 
-        telem = collect_hardware_telemetry()
-        gpu_info = telem.gpu_name or "CPU-only (No CUDA detected)"
+        report = probe_hardware()
+        gpu_info = report.gpus[0].name if report.gpus else "CPU-only (No CUDA detected)"
         res_text = (
-            f"• Host: {telem.hostname} ({telem.os_name} {telem.os_release})\n"
-            f"• CPU Cores: {telem.cpu_count_logical} Logical ({telem.cpu_count_physical} Physical) | Current Usage: {telem.cpu_percent:.1f}%\n"
-            f"• RAM: {telem.ram_used_gb:.1f} GB Used / {telem.ram_total_gb:.1f} GB Total\n"
+            f"• Host: {report.hostname} ({report.os_name} {report.os_release})\n"
+            f"• CPU Cores: {report.cpu_count_logical} Logical ({report.cpu_count_physical} Physical) | Current Usage: {report.cpu_percent:.1f}%\n"
+            f"• RAM: {report.ram_used_gb:.1f} GB Used / {report.ram_total_gb:.1f} GB Total\n"
             f"• Compute Accelerator: {gpu_info}\n"
-            f"• Storage: {telem.disk_free_gb:.1f} GB Free"
+            f"• Storage: {report.disk_free_gb:.1f} GB Free"
         )
         self._res_lbl = tk.Label(card, text=res_text, font=("Consolas", 10), justify="left", bg="#181825", fg="#a6adc8")
         self._res_lbl.pack(anchor="w")

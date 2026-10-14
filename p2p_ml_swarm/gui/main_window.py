@@ -615,21 +615,17 @@ MainWindow = LocalMLClusterGUI
 
 
 def launch_gui() -> None:
-    """Launch the Local ML Cluster desktop application or print dependency guide."""
-    if not PYSIDE_AVAILABLE:
-        print("\n" + "=" * 60)
-        print("  Local ML Cluster — PySide6 Desktop GUI")
-        print("=" * 60)
-        print("PySide6 is not installed in the active Python environment.")
-        print("To launch the graphical desktop interface, install PySide6:")
-        print("    pip install PySide6")
-        print("=" * 60 + "\n")
-        return
+    """Launch the Local ML Cluster desktop application (PySide6 with Tkinter fallback)."""
+    if PYSIDE_AVAILABLE:
+        app = QApplication(sys.argv)
+        window = LocalMLClusterGUI()
+        window.show()
+        sys.exit(app.exec())
+    else:
+        logger.info("PySide6 not present; launching native Tkinter desktop interface")
+        from p2p_ml_swarm.gui.tk_window import launch_tk_gui
 
-    app = QApplication(sys.argv)
-    window = LocalMLClusterGUI()
-    window.show()
-    sys.exit(app.exec())
+        launch_tk_gui()
 
 
 run_gui = launch_gui
